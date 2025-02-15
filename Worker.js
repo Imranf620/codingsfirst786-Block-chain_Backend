@@ -7,10 +7,10 @@ const app = express();
 app.use(express.json());
 
 const contractAddress = process.env.contractAddress;
-const contractABI = JSON.parse(process.env.contractABI);
+const contractABI = (process.env.contractABI);
 
 const provider = new ethers.JsonRpcProvider(
-  "https://sepolia.infura.io/v3/f86f9680b15741c5bdd9e505a0e21af7"
+  "https://bsc-mainnet.infura.io/v3/ceed865512994f26b6e18fce575f85cd"
 );
 async function readFromContract(walletAddress) {
   const contract = new ethers.Contract(contractAddress, contractABI, provider);
