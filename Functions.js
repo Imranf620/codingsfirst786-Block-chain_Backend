@@ -60,6 +60,7 @@ const UserRefferalData = async (req, resp) => {
       return resp.status(404).json({ message: "User not found" });
     }
     let val = user.referrer;
+    console.log("value", val)
     const Reffrer = await User.findOne({ referrer: val });
     const UlineAdress = await User.findOne({ Personal: Reffrer.referrer });
     return resp.status(200).json({
