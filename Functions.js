@@ -1,20 +1,29 @@
 const { request } = require("express");
 const { readFromContract, IdtoAdress } = require("./Worker");
 const { UserProfile, User } = require("./Database");
+
 const ProfileCreation = async (req, res) => {
-  const dummyData = req.body;
   try {
-    const newUserProfile = new UserProfile(dummyData);
+    const lastUser = await UserProfile.findOne().sort({ id: -1 });
+
+    const newId = lastUser && lastUser.id ? Number(lastUser.id) + 1 : 1;
+
+    const newUserProfile = new UserProfile({
+      ...req.body,
+      id: newId.toString(),
+    });
+
     await newUserProfile.save();
+
     res.status(201).json({
-      message: "User profile created successfully!",
+      message: 'User profile created successfully!',
       data: newUserProfile,
     });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error inserting data", error: error.message });
-  }
+      .json({ message: 'Error inserting data', error: error.message });
+  }
 };
 
 const getUserByWalletAddress = async (req, res) => {
