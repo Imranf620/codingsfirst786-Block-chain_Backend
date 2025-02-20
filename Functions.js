@@ -1,6 +1,6 @@
-const { request } = require("express");
-const { readFromContract, IdtoAdress } = require("./Worker");
-const { UserProfile, User } = require("./Database");
+const { request } = require('express');
+const { readFromContract, IdtoAdress } = require('./Worker');
+const { UserProfile, User } = require('./Database');
 
 const ProfileCreation = async (req, res) => {
   try {
@@ -22,8 +22,8 @@ const ProfileCreation = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: 'Error inserting data', error: error.message });
-  }
+      .json({ message: 'Error inserting data', error: error.message });
+  }
 };
 
 const getUserByWalletAddress = async (req, res) => {
@@ -32,22 +32,22 @@ const getUserByWalletAddress = async (req, res) => {
   try {
     const user = await UserProfile.findOne({
       walletAdress: walletAddress,
-    }).select("-_id -__v");
+    }).select('-_id -__v');
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' });
     }
     const contractData = await readFromContract(walletAddress);
 
     res.status(200).json({
-      message: "User found successfully",
+      message: 'User found successfully',
       data: user,
       contractData: contractData,
     });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error fetching user data", error: error.message });
+      .json({ message: 'Error fetching user data', error: error.message });
   }
 };
 
@@ -55,7 +55,7 @@ const UserRefferalData = async (req, resp) => {
   try {
     const { ID } = req.params;
     if (!ID) {
-      return resp.status(400).json({ message: "User ID is required" });
+      return resp.status(400).json({ message: 'User ID is required' });
     }
     const Useradress = await IdtoAdress(ID);
     const partners = await User.countDocuments({
@@ -66,14 +66,14 @@ const UserRefferalData = async (req, resp) => {
 
     const user = await User.findOne({ id: ID });
     if (!user) {
-      return resp.status(404).json({ message: "User not found" });
+      return resp.status(404).json({ message: 'User not found' });
     }
     let val = user.referrer;
-    console.log("value", val)
+    console.log('value', val);
     const Reffrer = await User.findOne({ referrer: val });
     const UlineAdress = await User.findOne({ Personal: Reffrer.referrer });
     return resp.status(200).json({
-      message: "User found successfully",
+      message: 'User found successfully',
       data: [Reffrer],
       Partner: partners,
       Team: TeamMembers,
@@ -81,7 +81,7 @@ const UserRefferalData = async (req, resp) => {
     });
   } catch (error) {
     return resp.status(500).json({
-      message: "Error fetching user data",
+      message: 'Error fetching user data',
       error: error.message,
     });
   }
@@ -113,7 +113,7 @@ const TotalDataApi = async (req, res) => {
       }
     }
     return res.status(200).json({
-      message: "User data fetched successfully",
+      message: 'User data fetched successfully',
       data: {
         totalUsers,
         recentUsers,
@@ -123,7 +123,7 @@ const TotalDataApi = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      message: "Error fetching user data",
+      message: 'Error fetching user data',
       error: error.message,
     });
   }
@@ -133,40 +133,40 @@ const fetchReferredUsers = async (req, res) => {
   const { ID } = req.params;
   try {
     // Find the parent user
-    const user = await User.findOne({ id: ID }).select("-_id -__v");
+    const user = await User.findOne({ id: ID }).select('-_id -__v');
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     const referredIds = user.TotalReferred;
     if (!Array.isArray(referredIds) || referredIds.length === 0) {
       return res.status(200).json({
-        message: "User has no referrals",
+        message: 'User has no referrals',
         data: user,
         referredUsers: [],
       });
     }
 
     const referredUsers = await User.find({ id: { $in: referredIds } }).select(
-      "-_id -__v"
+      '-_id -__v'
     );
 
     res.status(200).json({
-      message: "User and referred users found successfully",
+      message: 'User and referred users found successfully',
       data: user,
       referredUsers: referredUsers,
     });
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error fetching user data", error: error.message });
+      .json({ message: 'Error fetching user data', error: error.message });
   }
 };
 
 const getLast24HoursUSDT = async (req, res) => {
   // console.log("in function");
-  
+
   try {
     const twentyFourHoursAgo = new Date();
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
@@ -186,7 +186,7 @@ const getLast24HoursUSDT = async (req, res) => {
     }, 0);
 
     res.status(200).json({
-      message: "Total USDT received statistics",
+      message: 'Total USDT received statistics',
       totalUSDTReceivedLast24Hours: totalUSDTLast24Hours,
       totalUSDTReceivedAllTime: totalUSDTAllTime,
       totalUsers: allUsers.length,
@@ -194,7 +194,34 @@ const getLast24HoursUSDT = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error fetching data", error: error.message });
+      .json({ message: 'Error fetching data', error: error.message });
+  }
+};
+
+const updateUserProfile = async (req, res) => {
+  const { id } = req.params;
+  try {
+    console.log('Api is hitting', id);
+    const updatedData = req.body;
+
+    const updatedUserProfile = await UserProfile.findOneAndUpdate(
+      { id: id.toString() },
+      { $set: updatedData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUserProfile) {
+      return res.status(404).json({ message: 'User profile not found' });
+    }
+
+    res.status(200).json({
+      message: 'User profile updated successfully!',
+      data: updatedUserProfile,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error updating data', error: error.message });
   }
 };
 
@@ -205,4 +232,5 @@ module.exports = {
   fetchReferredUsers,
   UserRefferalData,
   TotalDataApi,
+  updateUserProfile,
 };

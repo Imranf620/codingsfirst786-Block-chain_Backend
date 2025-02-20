@@ -1,12 +1,12 @@
 require('dotenv').config();
-const express = require("express");
-const bodyParser = require("body-parser");
+const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const port = 5000;
-const Function = require('./Functions'); 
-const Worker = require('./Worker'); 
-const mongoose = require("mongoose");
+const Function = require('./Functions');
+const Worker = require('./Worker');
+const mongoose = require('mongoose');
 const MONGO_URL = process.env.MONGO_URL;
 
 app.use(bodyParser.json());
@@ -14,7 +14,7 @@ app.use(cors());
 
 const connectToMongo = async () => {
   try {
-    await mongoose.connect(MONGO_URL);  
+    await mongoose.connect(MONGO_URL);
     console.log('MongoDB connected successfully!');
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
@@ -27,15 +27,15 @@ connectToMongo();
 app.post('/api/profile', Function.ProfileCreation);
 app.get('/user/:walletAddress', Function.getUserByWalletAddress);
 app.get('/refferal/:ID', Function.UserRefferalData);
-app.get('/getMembers/:ID',Function.TotalDataApi)
-app.get('/getalldata/:ID',Function.fetchReferredUsers)
-app.get('/get24hrsUSDT',Function.getLast24HoursUSDT)
+app.get('/getMembers/:ID', Function.TotalDataApi);
+app.get('/getalldata/:ID', Function.fetchReferredUsers);
+app.get('/get24hrsUSDT', Function.getLast24HoursUSDT);
+app.put('/update/profile/:id', Function.updateUserProfile);
 
-console.log("Function working");
-// 
+console.log('Function working');
+//
 
 // Worker.IdtoAdress(1);
-
 
 setInterval(Worker.WorkerFun, 10000);
 app.listen(port, () => {
