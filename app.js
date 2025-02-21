@@ -7,12 +7,13 @@ const port = 5000;
 const Function = require('./Functions');
 const Worker = require('./Worker');
 const mongoose = require('mongoose');
+const errorHandler = require('./Error');
 const MONGO_URL = process.env.MONGO_URL;
 
 app.use(bodyParser.json());
-
 app.use(cors({ origin: '*' }));
 
+// MongoDB connection
 const connectToMongo = async () => {
   try {
     await mongoose.connect(MONGO_URL);
@@ -26,6 +27,7 @@ const connectToMongo = async () => {
 
 connectToMongo();
 
+// Routes
 app.get('/', (req, res) => {
   res.send('Welcome to the Blockchain User Sync API!');
 });
@@ -37,7 +39,13 @@ app.get('/getMembers/:ID', Function.TotalDataApi);
 app.get('/getalldata/:ID', Function.fetchReferredUsers);
 app.get('/get24hrsUSDT', Function.getLast24HoursUSDT);
 
+// Error-handling middleware
+app.use(errorHandler); // Use the correct middleware function
+
+// Worker function
 setInterval(Worker.WorkerFun, 10000);
+
+// Start the server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
