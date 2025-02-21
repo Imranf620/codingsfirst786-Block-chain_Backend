@@ -1,16 +1,42 @@
 const { request } = require('express');
 const { readFromContract, IdtoAdress } = require('./Worker');
 const { UserProfile, User } = require('./Database');
+const { v4: uuidv4 } = require('uuid');
 
+const updateUserProfile = async (req, res) => {
+  const { id } = req.params;
+  try {
+    console.log('Api is hitting', id);
+    const updatedData = req.body;
+    const updatedUserProfile = await UserProfile.findOneAndUpdate(
+      { id: id },
+      { $set: updatedData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUserProfile) {
+      return res.status(404).json({ message: 'User profile not found' });
+    }
+
+    res.status(200).json({
+      message: 'User profile updated successfully!',
+      data: updatedUserProfile,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error updating data', error: error.message });
+  }
+};
 const ProfileCreation = async (req, res) => {
   try {
-    const lastUser = await UserProfile.findOne().sort({ id: -1 });
+    // const lastUser = await UserProfile.findOne().sort({ id: -1 });
 
-    const newId = lastUser && lastUser.id ? Number(lastUser.id) + 1 : 1;
+    // const newId = lastUser && lastUser.id ? Number(lastUser.id) + 1 : 1;
 
     const newUserProfile = new UserProfile({
       ...req.body,
-      id: newId.toString(),
+      id: uuidv4(),
     });
 
     await newUserProfile.save();
@@ -28,6 +54,7 @@ const ProfileCreation = async (req, res) => {
 
 const getUserByWalletAddress = async (req, res) => {
   const { walletAddress } = req.params;
+  console.log('sdsdsd', walletAddress);
 
   try {
     const user = await UserProfile.findOne({
@@ -35,14 +62,17 @@ const getUserByWalletAddress = async (req, res) => {
     }).select('-_id -__v');
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User is not found' });
     }
     const contractData = await readFromContract(walletAddress);
+    console.log('user', contractData);
 
     res.status(200).json({
       message: 'User found successfully',
       data: user,
-      contractData: contractData,
+      contractData: contractData.map((item) =>
+        typeof item === 'bigint' ? item.toString() : item
+      ),
     });
   } catch (error) {
     res
@@ -69,7 +99,6 @@ const UserRefferalData = async (req, resp) => {
       return resp.status(404).json({ message: 'User not found' });
     }
     let val = user.referrer;
-    console.log('value', val);
     const Reffrer = await User.findOne({ referrer: val });
     const UlineAdress = await User.findOne({ Personal: Reffrer.referrer });
     return resp.status(200).json({
@@ -195,33 +224,6 @@ const getLast24HoursUSDT = async (req, res) => {
     res
       .status(500)
       .json({ message: 'Error fetching data', error: error.message });
-  }
-};
-
-const updateUserProfile = async (req, res) => {
-  const { id } = req.params;
-  try {
-    console.log('Api is hitting', id);
-    const updatedData = req.body;
-
-    const updatedUserProfile = await UserProfile.findOneAndUpdate(
-      { id: id.toString() },
-      { $set: updatedData },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedUserProfile) {
-      return res.status(404).json({ message: 'User profile not found' });
-    }
-
-    res.status(200).json({
-      message: 'User profile updated successfully!',
-      data: updatedUserProfile,
-    });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: 'Error updating data', error: error.message });
   }
 };
 

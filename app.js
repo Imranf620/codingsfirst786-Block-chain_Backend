@@ -24,19 +24,16 @@ const connectToMongo = async () => {
 };
 
 connectToMongo();
+
 app.post('/api/profile', Function.ProfileCreation);
+app.put('/update/profile/:id', Function.updateUserProfile);
 app.get('/user/:walletAddress', Function.getUserByWalletAddress);
 app.get('/refferal/:ID', Function.UserRefferalData);
 app.get('/getMembers/:ID', Function.TotalDataApi);
 app.get('/getalldata/:ID', Function.fetchReferredUsers);
 app.get('/get24hrsUSDT', Function.getLast24HoursUSDT);
-app.put('/update/profile/:id', Function.updateUserProfile);
-
-console.log('Function working');
-//
 
 // Worker.IdtoAdress(1);
-
 setInterval(Worker.WorkerFun, 10000);
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
