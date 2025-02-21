@@ -30,6 +30,9 @@ const connectToMongo = async () => {
 
 connectToMongo();
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the Blockchain User Sync API!');
+});
 app.post('/api/profile', Function.ProfileCreation);
 app.put('/update/profile/:id', Function.updateUserProfile);
 app.get('/user/:walletAddress', Function.getUserByWalletAddress);
