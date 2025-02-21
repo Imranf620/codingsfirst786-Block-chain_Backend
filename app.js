@@ -11,9 +11,9 @@ const MONGO_URL = process.env.MONGO_URL;
 
 app.use(bodyParser.json());
 const corsOptions = {
-  origin: 'http://localhost:3000', // Allow only this origin
-  methods: 'GET,POST,PUT,DELETE', // Allow these HTTP methods
-  credentials: true, // Allow cookies and authentication headers
+  origin: 'http://localhost:3000',
+  methods: 'GET,POST,PUT,DELETE',
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
