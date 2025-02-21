@@ -10,13 +10,9 @@ const mongoose = require('mongoose');
 const MONGO_URL = process.env.MONGO_URL;
 
 app.use(bodyParser.json());
-const corsOptions = {
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
 
-app.use(cors(corsOptions));
+app.use(cors({ origin: '*' }));
+
 const connectToMongo = async () => {
   try {
     await mongoose.connect(MONGO_URL);
